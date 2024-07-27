@@ -3,7 +3,7 @@ from django.db import models
 from django.db.models import Q
 from django.http import HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from .models import Room, Message
@@ -91,3 +91,7 @@ def CreateRoomView(request, username):
         room = Room.objects.create(user1=request.user, user2=user)
 
     return redirect('room', room_pk=room.pk, username=request.user.username)
+
+def logout_view(request):
+    logout(request)
+    return redirect('login')
