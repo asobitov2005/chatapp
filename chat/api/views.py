@@ -116,8 +116,34 @@ class RoomView(APIView):
 class CreateRoomView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(
+        operation_description="Create or get a chat room with a specified user",
+        responses={
+            201: RoomSerializer,
+            404: 'User not found'
+        },
+        manual_parameters=[
+            openapi.Parameter(
+                'username',
+                openapi.IN_PATH,
+                description="Username of the user to create a room with",
+                type=openapi.TYPE_STRING
+            ),
+        ],
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'username': openapi.Schema(type=openapi.TYPE_STRING,
+                                           description='Username of the user to create a room with')
+            }
+        ),
+    )
     def post(self, request, username):
         user = get_object_or_404(User, username=username)
+
+        if user == request.user:
+            return Response({"detail": "You cannot create a room with yourself."}, status=status.HTTP_400_BAD_REQUEST)
+
         room = Room.objects.filter(
             (Q(user1=request.user) & Q(user2=user)) |
             (Q(user1=user) & Q(user2=request.user))
