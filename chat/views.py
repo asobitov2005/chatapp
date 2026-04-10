@@ -1,12 +1,11 @@
 from django.contrib.auth.models import User
-from django.db import models
-from django.db.models import Q
 from django.http import HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth import login, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.decorators import login_required
-from .models import Room, Message
+from django.views.decorators.http import require_POST
+from .models import Room, Message, get_or_create_private_room
 
 def signup(request):
     if request.method == 'POST':
@@ -38,42 +37,23 @@ def user_list(request):
 
 @login_required
 def HomeView(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-
-        try:
-            user = User.objects.get(username=username)
-        except User.DoesNotExist:
-            return redirect('user_list')  # Handle user not found scenario
-
-        # Check if the room exists in either configuration
-        room = Room.objects.filter(
-            (models.Q(user1=request.user) & models.Q(user2=user)) |
-            (models.Q(user1=user) & models.Q(user2=request.user))
-        ).first()
-
-        if not room:
-            # Create a new room if it doesn't exist
-            room = Room.objects.create(user1=request.user, user2=user)
-
-        return redirect('room', room_pk=room.pk, username=username)
-
     return redirect('user_list')
 
 
 @login_required
-def RoomView(request, room_pk, username):
-    room = get_object_or_404(Room, pk=room_pk)
+def RoomView(request, room_pk):
+    room = get_object_or_404(Room.objects.select_related('user1', 'user2'), pk=room_pk)
 
-    # Ensure the user is part of the room
     if not (room.user1 == request.user or room.user2 == request.user):
         return HttpResponseForbidden("You are not allowed to access this room.")
 
-    messages = Message.objects.filter(room=room)
+    messages = Message.objects.filter(room=room).select_related('sender')
+    other_user = room.user2 if room.user1 == request.user else room.user1
 
     return render(request, 'room.html', {
         'room_pk': room_pk,
-        'username': username,
+        'current_username': request.user.username,
+        'other_username': other_user.username,
         'messages': messages,
     })
 
@@ -82,16 +62,13 @@ def RoomView(request, room_pk, username):
 def CreateRoomView(request, username):
     user = get_object_or_404(User, username=username)
 
-    room = Room.objects.filter(
-        (Q(user1=request.user) & Q(user2=user)) |
-        (Q(user1=user) & Q(user2=request.user))
-    ).first()
+    if user == request.user:
+        return redirect('user_list')
 
-    if not room:
-        room = Room.objects.create(user1=request.user, user2=user)
+    room = get_or_create_private_room(request.user, user)
+    return redirect('room', room_pk=room.pk)
 
-    return redirect('room', room_pk=room.pk, username=request.user.username)
-
+@require_POST
 def logout_view(request):
     logout(request)
     return redirect('login')

@@ -1,13 +1,13 @@
 from django.contrib.auth import authenticate
-from django.db.models import Q
 from rest_framework import status
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, get_object_or_404
+from rest_framework.generics import ListAPIView, ListCreateAPIView, get_object_or_404
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
-from chat.models import Room, Message
+from chat.models import Room, Message, get_or_create_private_room
 from .serializers import RoomSerializer, MessageSerializer, UserSerializer
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -94,7 +94,7 @@ class LoginView(APIView):
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class UserListView(ListCreateAPIView):
+class UserListView(ListAPIView):
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
 
@@ -144,14 +144,7 @@ class CreateRoomView(APIView):
         if user == request.user:
             return Response({"detail": "You cannot create a room with yourself."}, status=status.HTTP_400_BAD_REQUEST)
 
-        room = Room.objects.filter(
-            (Q(user1=request.user) & Q(user2=user)) |
-            (Q(user1=user) & Q(user2=request.user))
-        ).first()
-
-        if not room:
-            room = Room.objects.create(user1=request.user, user2=user)
-
+        room = get_or_create_private_room(request.user, user)
         serializer = RoomSerializer(room)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -161,14 +154,22 @@ class MessageListView(ListCreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        room_id = self.kwargs.get('room_pk')
-        return Message.objects.filter(room_id=room_id)
+        room = self.get_room()
+        return Message.objects.filter(room=room).select_related('sender')
+
+    def get_room(self):
+        room = get_object_or_404(Room, pk=self.kwargs.get('room_pk'))
+        if room.user1 != self.request.user and room.user2 != self.request.user:
+            raise PermissionDenied("You are not allowed to access this room.")
+        return room
 
     def post(self, request, room_pk):
-        data = request.data
-        data['room'] = room_pk
-        serializer = MessageSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        room = self.get_room()
+
+        message = (request.data.get('message') or '').strip()
+        if not message:
+            return Response({'message': ['This field may not be blank.']}, status=status.HTTP_400_BAD_REQUEST)
+
+        message_obj = Message.objects.create(room=room, sender=request.user, message=message)
+        serializer = MessageSerializer(message_obj)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

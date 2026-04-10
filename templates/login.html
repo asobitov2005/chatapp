@@ -1,93 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f2f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
+        :root {
+            --bg: linear-gradient(145deg, #f7eadf 0%, #dbe6f3 58%, #eef6ef 100%);
+            --panel: rgba(255, 255, 255, 0.9);
+            --border: rgba(23, 32, 51, 0.08);
+            --text: #172033;
+            --muted: #64748b;
+            --accent: #0f766e;
+            --accent-dark: #115e59;
+            --error: #b9382f;
         }
 
-        .container {
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-            max-width: 400px;
-            width: 100%;
-            text-align: center;
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 18px;
+            font-family: "Avenir Next", "Segoe UI", "Trebuchet MS", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .panel {
+            width: min(460px, 100%);
+            padding: 30px;
+            border-radius: 30px;
+            border: 1px solid var(--border);
+            background: var(--panel);
+            box-shadow: 0 28px 80px rgba(23, 32, 51, 0.16);
+            backdrop-filter: blur(14px);
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(15, 118, 110, 0.12);
+            color: var(--accent-dark);
+            font-size: 12px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            font-weight: 800;
         }
 
         h1 {
-            color: #333;
-            margin-bottom: 1.5rem;
+            margin: 16px 0 10px;
+            font-size: clamp(34px, 8vw, 48px);
+            line-height: 0.96;
+        }
+
+        .intro {
+            margin: 0 0 24px;
+            color: var(--muted);
+            line-height: 1.6;
         }
 
         form {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
+            display: grid;
+            gap: 14px;
         }
 
         form p {
-            margin: 0.5rem 0;
+            margin: 0;
+            display: grid;
+            gap: 8px;
         }
 
-        button {
-            background-color: #007bff;
-            width: 320px;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            padding: 0.75rem;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            margin-top: 1rem; /* Add spacing above the button */
-        }
-
-        button:hover {
-            background-color: #0056b3;
+        label {
+            font-weight: 700;
         }
 
         input {
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 0.75rem;
-            font-size: 1rem;
-            margin: 0.5rem 0;
-            width: 320px; /* Ensure inputs have the same width as the button */
+            width: 100%;
+            min-height: 52px;
+            padding: 0 16px;
+            border-radius: 16px;
+            border: 1px solid rgba(23, 32, 51, 0.12);
+            font: inherit;
+            color: var(--text);
+            background: #ffffff;
         }
 
-        .signup-link {
-            margin-top: 1rem;
-            font-size: 0.875rem;
-            color: #007bff;
+        input:focus {
+            outline: none;
+            border-color: rgba(15, 118, 110, 0.58);
+            box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
+        }
+
+        ul.errorlist {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            color: var(--error);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .submit {
+            margin-top: 6px;
+            min-height: 54px;
+            border: 0;
+            border-radius: 18px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+            color: #ffffff;
+            font: inherit;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .footer-link {
+            display: inline-block;
+            margin-top: 18px;
+            color: var(--accent-dark);
+            font-weight: 700;
             text-decoration: none;
-        }
-
-        .signup-link:hover {
-            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Login</h1>
+    <section class="panel">
+        <span class="eyebrow">Secure Login</span>
+        <h1>Welcome back</h1>
+        <p class="intro">Session auth brauzer cookie orqali websocket qatlamiga ham uzatiladi. Shu login oqimi endi realtime room access bilan bog'langan.</p>
+
         <form method="post">
             {% csrf_token %}
+            {{ form.non_field_errors }}
             {{ form.as_p }}
-            <button type="submit">Login</button>
-            <a href="{% url 'signup' %}" class="signup-link">Don't have an account? Sign Up</a>
+            <button class="submit" type="submit">Login</button>
         </form>
-    </div>
+
+        <a class="footer-link" href="{% url 'signup' %}">Create a new account</a>
+    </section>
 </body>
 </html>

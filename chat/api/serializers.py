@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
 from chat.models import Room, Message
 
 
@@ -15,10 +16,14 @@ class UserSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(**validated_data)
         return user
 
+    def validate_password(self, value):
+        validate_password(value)
+        return value
+
 
 class RoomSerializer(serializers.ModelSerializer):
-    user1 = UserSerializer()
-    user2 = UserSerializer()
+    user1 = serializers.CharField(source='user1.username', read_only=True)
+    user2 = serializers.CharField(source='user2.username', read_only=True)
 
     class Meta:
         model = Room
@@ -26,7 +31,8 @@ class RoomSerializer(serializers.ModelSerializer):
 
 
 class MessageSerializer(serializers.ModelSerializer):
-    room = RoomSerializer()
+    room = serializers.IntegerField(source='room_id', read_only=True)
+    sender = serializers.CharField(source='sender.username', read_only=True)
 
     class Meta:
         model = Message
