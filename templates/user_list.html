@@ -78,7 +78,8 @@
             line-height: 1.6;
         }
 
-        .logout-form {
+        .logout-form,
+        .user-card-form {
             margin: 0;
         }
 
@@ -104,15 +105,19 @@
         }
 
         .user-card {
+            width: 100%;
+            min-height: 100%;
             display: flex;
             flex-direction: column;
             gap: 14px;
             padding: 22px;
             border-radius: 24px;
-            text-decoration: none;
+            text-align: left;
             color: inherit;
             background: rgba(255, 255, 255, 0.94);
             border: 1px solid rgba(23, 32, 51, 0.08);
+            font: inherit;
+            cursor: pointer;
             transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
         }
 
@@ -207,12 +212,15 @@
             {% if users %}
                 <div class="user-grid">
                     {% for user in users %}
-                        <a class="user-card" href="{% url 'create_room' user.username %}">
-                            <div class="avatar">{{ user.username|slice:":1"|upper }}</div>
-                            <h2>{{ user.username }}</h2>
-                            <p>Realtime chat boshlash uchun private room oching yoki mavjud roomga qayting.</p>
-                            <span class="cta">Open chat</span>
-                        </a>
+                        <form class="user-card-form" method="post" action="{% url 'create_room' user.username %}">
+                            {% csrf_token %}
+                            <button class="user-card" type="submit">
+                                <span class="avatar">{{ user.username|slice:":1"|upper }}</span>
+                                <h2>{{ user.username }}</h2>
+                                <p>Realtime chat boshlash uchun private room oching yoki mavjud roomga qayting.</p>
+                                <span class="cta">Open chat</span>
+                            </button>
+                        </form>
                     {% endfor %}
                 </div>
             {% else %}
