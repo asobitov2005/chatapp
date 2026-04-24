@@ -1,4 +1,7 @@
+from unittest.mock import Mock, patch
+
 from django.contrib.auth.models import User
+from django.db import IntegrityError, transaction
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework.test import APIClient
@@ -14,16 +17,29 @@ class RoomFlowTests(TestCase):
     def test_create_room_redirects_to_private_room_and_reuses_existing_room(self):
         self.client.force_login(self.alice)
 
-        first_response = self.client.get(reverse("create_room", args=[self.bob.username]))
+        first_response = self.client.post(reverse("create_room", args=[self.bob.username]))
         room = Room.objects.get()
 
         self.assertRedirects(first_response, reverse("room", args=[room.pk]))
         self.assertEqual(Room.objects.count(), 1)
 
-        second_response = self.client.get(reverse("create_room", args=[self.bob.username]))
+        second_response = self.client.post(reverse("create_room", args=[self.bob.username]))
 
         self.assertRedirects(second_response, reverse("room", args=[room.pk]))
         self.assertEqual(Room.objects.count(), 1)
+
+    def test_create_room_requires_post(self):
+        self.client.force_login(self.alice)
+
+        response = self.client.get(reverse("create_room", args=[self.bob.username]))
+
+        self.assertEqual(response.status_code, 405)
+        self.assertEqual(Room.objects.count(), 0)
+
+    def test_room_pair_must_be_stored_in_order(self):
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                Room.objects.create(user1=self.bob, user2=self.alice)
 
     def test_non_member_cannot_open_room_page(self):
         charlie = User.objects.create_user(username="charlie", password="StrongPass123!")
@@ -51,7 +67,13 @@ class MessageApiTests(TestCase):
 
         self.assertEqual(response.status_code, 403)
 
-    def test_post_message_uses_authenticated_user_and_current_room(self):
+    @patch("chat.api.views.async_to_sync")
+    @patch("chat.api.views.get_channel_layer")
+    def test_post_message_uses_authenticated_user_current_room_and_broadcasts(self, get_channel_layer, async_to_sync):
+        channel_layer = Mock()
+        sync_group_send = Mock()
+        get_channel_layer.return_value = channel_layer
+        async_to_sync.return_value = sync_group_send
         self.client.force_authenticate(user=self.alice)
 
         response = self.client.post(
@@ -67,6 +89,15 @@ class MessageApiTests(TestCase):
         self.assertEqual(message.room, self.room)
         self.assertEqual(message.sender, self.alice)
         self.assertEqual(message.message, "hello from alice")
+        async_to_sync.assert_called_once_with(channel_layer.group_send)
+        sync_group_send.assert_called_once_with(
+            f"chat_{self.room.pk}",
+            {
+                "type": "chat_message",
+                "message": "hello from alice",
+                "sender": self.alice.username,
+            },
+        )
 
     def test_empty_message_is_rejected(self):
         self.client.force_authenticate(user=self.alice)
