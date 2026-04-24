@@ -3,18 +3,21 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sign Up</title>
+    <title>Sign Up | ChatApp</title>
     <style>
         :root {
-            --bg: linear-gradient(145deg, #f9eee3 0%, #deebfb 60%, #edf6f0 100%);
-            --panel: rgba(255, 255, 255, 0.92);
-            --border: rgba(23, 32, 51, 0.08);
+            --page: #eef2f7;
+            --surface: #ffffff;
+            --surface-soft: #f8fafc;
+            --line: #d8dee9;
             --text: #172033;
             --muted: #64748b;
-            --accent: #9a3412;
-            --accent-dark: #7c2d12;
-            --info-bg: rgba(154, 52, 18, 0.08);
-            --error: #b9382f;
+            --teal: #0f766e;
+            --teal-dark: #115e59;
+            --amber: #b45309;
+            --danger: #b42318;
+            --navy: #111827;
+            --shadow: 0 24px 70px rgba(17, 24, 39, 0.14);
         }
 
         * {
@@ -24,46 +27,141 @@
         body {
             margin: 0;
             min-height: 100vh;
-            display: grid;
-            place-items: center;
-            padding: 18px;
-            font-family: "Avenir Next", "Segoe UI", "Trebuchet MS", sans-serif;
+            font-family: Inter, "Avenir Next", "Segoe UI", Arial, sans-serif;
             color: var(--text);
-            background: var(--bg);
+            background:
+                linear-gradient(135deg, rgba(180, 83, 9, 0.13), transparent 34%),
+                linear-gradient(225deg, rgba(15, 118, 110, 0.11), transparent 38%),
+                var(--page);
         }
 
-        .panel {
-            width: min(520px, 100%);
+        .auth-shell {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: minmax(320px, 520px) minmax(280px, 0.9fr);
+            align-items: center;
+            gap: 28px;
+            width: min(1080px, 100%);
+            margin: 0 auto;
+            padding: 28px;
+        }
+
+        .auth-panel,
+        .brand-panel {
+            border: 1px solid rgba(216, 222, 233, 0.9);
+            background: rgba(255, 255, 255, 0.92);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(18px);
+        }
+
+        .auth-panel {
+            border-radius: 24px;
             padding: 30px;
-            border-radius: 30px;
-            border: 1px solid var(--border);
-            background: var(--panel);
-            box-shadow: 0 28px 80px rgba(23, 32, 51, 0.16);
-            backdrop-filter: blur(14px);
+        }
+
+        .brand-panel {
+            min-height: 520px;
+            border-radius: 26px;
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .brand-mark {
+            display: inline-grid;
+            place-items: center;
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            background: var(--navy);
+            color: #ffffff;
+            font-weight: 900;
+            letter-spacing: 0;
+        }
+
+        .brand-title {
+            margin: 28px 0 12px;
+            font-size: clamp(40px, 7vw, 70px);
+            line-height: 0.96;
+            letter-spacing: 0;
+        }
+
+        .brand-copy {
+            margin: 0;
+            max-width: 440px;
+            color: var(--muted);
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        .contact-strip {
+            display: grid;
+            gap: 12px;
+        }
+
+        .contact-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: 58px;
+            padding: 10px 12px;
+            border-radius: 16px;
+            border: 1px solid var(--line);
+            background: var(--surface-soft);
+        }
+
+        .contact-avatar {
+            display: grid;
+            place-items: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: rgba(15, 118, 110, 0.12);
+            color: var(--teal-dark);
+            font-weight: 900;
+        }
+
+        .contact-name {
+            display: block;
+            font-weight: 900;
+        }
+
+        .contact-meta {
+            display: block;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .panel-head {
+            margin-bottom: 22px;
         }
 
         .eyebrow {
             display: inline-flex;
-            padding: 8px 14px;
+            align-items: center;
+            min-height: 30px;
+            padding: 0 11px;
             border-radius: 999px;
-            background: rgba(154, 52, 18, 0.12);
-            color: var(--accent-dark);
+            background: rgba(180, 83, 9, 0.1);
+            color: #92400e;
             font-size: 12px;
-            letter-spacing: 0.12em;
+            font-weight: 900;
             text-transform: uppercase;
-            font-weight: 800;
+            letter-spacing: 0.08em;
         }
 
         h1 {
-            margin: 16px 0 10px;
-            font-size: clamp(34px, 8vw, 48px);
-            line-height: 0.96;
+            margin: 14px 0 8px;
+            font-size: 34px;
+            line-height: 1.05;
+            letter-spacing: 0;
         }
 
         .intro {
-            margin: 0 0 24px;
+            margin: 0;
             color: var(--muted);
-            line-height: 1.6;
+            line-height: 1.55;
         }
 
         form {
@@ -78,87 +176,136 @@
         }
 
         label {
-            font-weight: 700;
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 800;
         }
 
         input {
             width: 100%;
             min-height: 52px;
-            padding: 0 16px;
-            border-radius: 16px;
-            border: 1px solid rgba(23, 32, 51, 0.12);
-            font: inherit;
-            color: var(--text);
+            padding: 0 15px;
+            border-radius: 14px;
+            border: 1px solid var(--line);
             background: #ffffff;
+            color: var(--text);
+            font: inherit;
+            outline: none;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease;
         }
 
         input:focus {
-            outline: none;
-            border-color: rgba(154, 52, 18, 0.45);
-            box-shadow: 0 0 0 4px rgba(154, 52, 18, 0.12);
+            border-color: rgba(180, 83, 9, 0.7);
+            box-shadow: 0 0 0 4px rgba(180, 83, 9, 0.12);
+        }
+
+        .helptext,
+        form ul:not(.errorlist) {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        form ul:not(.errorlist) {
+            margin: 2px 0 0;
+            padding-left: 18px;
         }
 
         ul.errorlist {
             margin: 0;
             padding: 0;
             list-style: none;
-            color: var(--error);
+            color: var(--danger);
             font-size: 14px;
-            font-weight: 600;
-        }
-
-        .password-note {
-            padding: 16px 18px;
-            border-radius: 18px;
-            background: var(--info-bg);
-            color: var(--accent-dark);
-            line-height: 1.6;
-        }
-
-        .password-note p {
-            margin: 0;
+            font-weight: 700;
         }
 
         .submit {
-            margin-top: 6px;
-            min-height: 54px;
+            min-height: 52px;
             border: 0;
-            border-radius: 18px;
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+            border-radius: 14px;
+            background: var(--amber);
             color: #ffffff;
             font: inherit;
-            font-weight: 800;
+            font-weight: 900;
             cursor: pointer;
+            transition: transform 0.18s ease, background-color 0.18s ease;
+        }
+
+        .submit:hover {
+            background: #92400e;
+            transform: translateY(-1px);
         }
 
         .footer-link {
-            display: inline-block;
+            display: inline-flex;
             margin-top: 18px;
-            color: var(--accent-dark);
-            font-weight: 700;
+            color: #92400e;
+            font-weight: 800;
             text-decoration: none;
+        }
+
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 900px) {
+            .auth-shell {
+                grid-template-columns: 1fr;
+                padding: 16px;
+            }
+
+            .brand-panel {
+                min-height: auto;
+                order: -1;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .brand-panel,
+            .auth-panel {
+                border-radius: 18px;
+                padding: 22px;
+            }
         }
     </style>
 </head>
 <body>
-    <section class="panel">
-        <span class="eyebrow">Create Account</span>
-        <h1>Join the app</h1>
-        <p class="intro">Account ochilgach session darhol yaratiladi va private room'lar uchun xavfsiz websocket oqimi ishlaydi.</p>
-
-        <form method="post">
-            {% csrf_token %}
-            {{ form.non_field_errors }}
-            {{ form.as_p }}
-
-            <div class="password-note">
-                <p>Minimal xavfsizlik: kuchsiz, to'liq raqamli yoki juda keng tarqalgan parollar bloklanadi.</p>
+    <main class="auth-shell">
+        <section class="auth-panel">
+            <div class="panel-head">
+                <span class="eyebrow">Create account</span>
+                <h1>Join ChatApp</h1>
+                <p class="intro">Set up your profile and start messaging.</p>
             </div>
 
-            <button class="submit" type="submit">Create account</button>
-        </form>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                {{ form.as_p }}
+                <button class="submit" type="submit">Create account</button>
+            </form>
 
-        <a class="footer-link" href="{% url 'login' %}">Already have an account?</a>
-    </section>
+            <a class="footer-link" href="{% url 'login' %}">Already have an account?</a>
+        </section>
+
+        <section class="brand-panel" aria-label="ChatApp">
+            <div>
+                <div class="brand-mark">C</div>
+                <h1 class="brand-title">ChatApp</h1>
+                <p class="brand-copy">A compact space for focused private conversations.</p>
+            </div>
+            <div class="contact-strip" aria-hidden="true">
+                <div class="contact-row">
+                    <span class="contact-avatar">A</span>
+                    <span><span class="contact-name">Alice</span><span class="contact-meta">Available</span></span>
+                </div>
+                <div class="contact-row">
+                    <span class="contact-avatar">B</span>
+                    <span><span class="contact-name">Bob</span><span class="contact-meta">In chat</span></span>
+                </div>
+            </div>
+        </section>
+    </main>
 </body>
 </html>
