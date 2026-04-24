@@ -3,17 +3,21 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login</title>
+    <title>Login | ChatApp</title>
     <style>
         :root {
-            --bg: linear-gradient(145deg, #f7eadf 0%, #dbe6f3 58%, #eef6ef 100%);
-            --panel: rgba(255, 255, 255, 0.9);
-            --border: rgba(23, 32, 51, 0.08);
+            --page: #eef2f7;
+            --surface: #ffffff;
+            --surface-soft: #f8fafc;
+            --line: #d8dee9;
             --text: #172033;
             --muted: #64748b;
-            --accent: #0f766e;
-            --accent-dark: #115e59;
-            --error: #b9382f;
+            --teal: #0f766e;
+            --teal-dark: #115e59;
+            --amber: #b45309;
+            --danger: #b42318;
+            --navy: #111827;
+            --shadow: 0 24px 70px rgba(17, 24, 39, 0.14);
         }
 
         * {
@@ -23,51 +27,140 @@
         body {
             margin: 0;
             min-height: 100vh;
-            display: grid;
-            place-items: center;
-            padding: 18px;
-            font-family: "Avenir Next", "Segoe UI", "Trebuchet MS", sans-serif;
-            background: var(--bg);
+            font-family: Inter, "Avenir Next", "Segoe UI", Arial, sans-serif;
             color: var(--text);
+            background:
+                linear-gradient(135deg, rgba(15, 118, 110, 0.12), transparent 34%),
+                linear-gradient(225deg, rgba(180, 83, 9, 0.12), transparent 38%),
+                var(--page);
         }
 
-        .panel {
-            width: min(460px, 100%);
+        .auth-shell {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: minmax(280px, 0.9fr) minmax(320px, 460px);
+            align-items: center;
+            gap: 28px;
+            width: min(1040px, 100%);
+            margin: 0 auto;
+            padding: 28px;
+        }
+
+        .brand-panel,
+        .auth-panel {
+            border: 1px solid rgba(216, 222, 233, 0.9);
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(18px);
+        }
+
+        .brand-panel {
+            min-height: 520px;
+            border-radius: 26px;
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+
+        .brand-mark {
+            display: inline-grid;
+            place-items: center;
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            background: var(--navy);
+            color: #ffffff;
+            font-weight: 900;
+            letter-spacing: 0;
+        }
+
+        .brand-title {
+            margin: 28px 0 12px;
+            font-size: clamp(42px, 7vw, 72px);
+            line-height: 0.95;
+            letter-spacing: 0;
+        }
+
+        .brand-copy {
+            margin: 0;
+            max-width: 460px;
+            color: var(--muted);
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        .mini-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 34px;
+        }
+
+        .mini-tile {
+            min-height: 96px;
+            border-radius: 18px;
+            border: 1px solid var(--line);
+            background: var(--surface-soft);
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .mini-label {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .mini-value {
+            font-size: 24px;
+            font-weight: 900;
+        }
+
+        .auth-panel {
+            border-radius: 24px;
             padding: 30px;
-            border-radius: 30px;
-            border: 1px solid var(--border);
-            background: var(--panel);
-            box-shadow: 0 28px 80px rgba(23, 32, 51, 0.16);
-            backdrop-filter: blur(14px);
+        }
+
+        .panel-head {
+            margin-bottom: 24px;
         }
 
         .eyebrow {
             display: inline-flex;
-            padding: 8px 14px;
+            align-items: center;
+            min-height: 30px;
+            padding: 0 11px;
             border-radius: 999px;
-            background: rgba(15, 118, 110, 0.12);
-            color: var(--accent-dark);
+            background: rgba(15, 118, 110, 0.1);
+            color: var(--teal-dark);
             font-size: 12px;
-            letter-spacing: 0.12em;
+            font-weight: 900;
             text-transform: uppercase;
-            font-weight: 800;
+            letter-spacing: 0.08em;
         }
 
         h1 {
-            margin: 16px 0 10px;
-            font-size: clamp(34px, 8vw, 48px);
-            line-height: 0.96;
+            margin: 14px 0 8px;
+            font-size: 34px;
+            line-height: 1.05;
+            letter-spacing: 0;
         }
 
         .intro {
-            margin: 0 0 24px;
+            margin: 0;
             color: var(--muted);
-            line-height: 1.6;
+            line-height: 1.55;
         }
 
         form {
             display: grid;
-            gap: 14px;
+            gap: 15px;
         }
 
         form p {
@@ -77,23 +170,26 @@
         }
 
         label {
-            font-weight: 700;
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 800;
         }
 
         input {
             width: 100%;
             min-height: 52px;
-            padding: 0 16px;
-            border-radius: 16px;
-            border: 1px solid rgba(23, 32, 51, 0.12);
-            font: inherit;
-            color: var(--text);
+            padding: 0 15px;
+            border-radius: 14px;
+            border: 1px solid var(--line);
             background: #ffffff;
+            color: var(--text);
+            font: inherit;
+            outline: none;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease;
         }
 
         input:focus {
-            outline: none;
-            border-color: rgba(15, 118, 110, 0.58);
+            border-color: rgba(15, 118, 110, 0.7);
             box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
         }
 
@@ -101,46 +197,104 @@
             margin: 0;
             padding: 0;
             list-style: none;
-            color: var(--error);
+            color: var(--danger);
             font-size: 14px;
-            font-weight: 600;
+            font-weight: 700;
         }
 
         .submit {
-            margin-top: 6px;
-            min-height: 54px;
+            min-height: 52px;
             border: 0;
-            border-radius: 18px;
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+            border-radius: 14px;
+            background: var(--teal);
             color: #ffffff;
             font: inherit;
-            font-weight: 800;
+            font-weight: 900;
             cursor: pointer;
+            transition: transform 0.18s ease, background-color 0.18s ease;
+        }
+
+        .submit:hover {
+            background: var(--teal-dark);
+            transform: translateY(-1px);
         }
 
         .footer-link {
-            display: inline-block;
+            display: inline-flex;
             margin-top: 18px;
-            color: var(--accent-dark);
-            font-weight: 700;
+            color: var(--teal-dark);
+            font-weight: 800;
             text-decoration: none;
+        }
+
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 860px) {
+            .auth-shell {
+                grid-template-columns: 1fr;
+                padding: 16px;
+            }
+
+            .brand-panel {
+                min-height: auto;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .brand-panel,
+            .auth-panel {
+                border-radius: 18px;
+                padding: 22px;
+            }
+
+            .mini-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <section class="panel">
-        <span class="eyebrow">Secure Login</span>
-        <h1>Welcome back</h1>
-        <p class="intro">Session auth brauzer cookie orqali websocket qatlamiga ham uzatiladi. Shu login oqimi endi realtime room access bilan bog'langan.</p>
+    <main class="auth-shell">
+        <section class="brand-panel" aria-label="ChatApp">
+            <div>
+                <div class="brand-mark">C</div>
+                <h1 class="brand-title">ChatApp</h1>
+                <p class="brand-copy">Private conversations with a calm, focused workspace.</p>
+            </div>
+            <div class="mini-grid" aria-hidden="true">
+                <div class="mini-tile">
+                    <span class="mini-label">Rooms</span>
+                    <span class="mini-value">1:1</span>
+                </div>
+                <div class="mini-tile">
+                    <span class="mini-label">Mode</span>
+                    <span class="mini-value">Live</span>
+                </div>
+                <div class="mini-tile">
+                    <span class="mini-label">Access</span>
+                    <span class="mini-value">Safe</span>
+                </div>
+            </div>
+        </section>
 
-        <form method="post">
-            {% csrf_token %}
-            {{ form.non_field_errors }}
-            {{ form.as_p }}
-            <button class="submit" type="submit">Login</button>
-        </form>
+        <section class="auth-panel">
+            <div class="panel-head">
+                <span class="eyebrow">Sign in</span>
+                <h1>Welcome back</h1>
+                <p class="intro">Continue to your conversations.</p>
+            </div>
 
-        <a class="footer-link" href="{% url 'signup' %}">Create a new account</a>
-    </section>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                {{ form.as_p }}
+                <button class="submit" type="submit">Login</button>
+            </form>
+
+            <a class="footer-link" href="{% url 'signup' %}">Create a new account</a>
+        </section>
+    </main>
 </body>
 </html>
