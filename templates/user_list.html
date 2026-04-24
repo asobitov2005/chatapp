@@ -139,12 +139,15 @@
             font-weight: 900;
         }
 
-        .user-card h2 {
+        .user-name {
+            display: block;
             margin: 0;
             font-size: 24px;
+            font-weight: 800;
         }
 
-        .user-card p {
+        .user-description {
+            display: block;
             margin: 0;
             color: var(--muted);
             line-height: 1.5;
@@ -216,8 +219,8 @@
                             {% csrf_token %}
                             <button class="user-card" type="submit">
                                 <span class="avatar">{{ user.username|slice:":1"|upper }}</span>
-                                <h2>{{ user.username }}</h2>
-                                <p>Realtime chat boshlash uchun private room oching yoki mavjud roomga qayting.</p>
+                                <span class="user-name">{{ user.username }}</span>
+                                <span class="user-description">Realtime chat boshlash uchun private room oching yoki mavjud roomga qayting.</span>
                                 <span class="cta">Open chat</span>
                             </button>
                         </form>
