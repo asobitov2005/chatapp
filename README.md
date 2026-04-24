@@ -17,24 +17,29 @@ This project is meant to be a clean starter for a realtime Django app:
 - Redis channel layer for websocket message delivery
 - PostgreSQL support for persistent data
 - Swagger / ReDoc API docs
-- basic tests for room access and message security
+- tests for room access, message ownership, and realtime API broadcast behavior
 
-## Security Improvements Already Added
+## Security Improvements
 
-This template was cleaned up and fixed before this README was written.
-
-- websocket connections now require authenticated users
+- Django is pinned to the supported `5.2` LTS line
+- production startup requires `SECRET_KEY`
+- `DEBUG` defaults to `False`
+- production startup requires `ALLOWED_HOSTS`
+- Swagger / ReDoc are public only in debug mode; otherwise they require admin access
+- websocket connections require authenticated users
 - only room members can connect to a room
 - sender spoofing is blocked on the server
-- unsafe DOM rendering was removed from the frontend
-- logout now uses `POST`
-- duplicate private rooms are prevented
-- Docker now runs ASGI correctly with `daphne`
+- unsafe DOM rendering is avoided on the frontend
+- logout uses `POST`
+- web room creation uses `POST` with CSRF protection
+- duplicate and reversed private rooms are prevented at the database layer
+- REST-created messages are broadcast to websocket subscribers
+- Docker runs ASGI correctly with `daphne`
 
 ## Tech Stack
 
 - Python 3.12
-- Django 5
+- Django 5.2 LTS
 - Django Channels
 - Django REST Framework
 - Simple JWT
@@ -64,6 +69,8 @@ Default service names in Docker are already set for:
 - `DATABASE_HOST=db`
 - `REDIS_URL=redis://redis:6379/0`
 - `CACHE_URL=redis://redis:6379/10`
+
+For local development, set `DEBUG=True` if you want public Swagger / ReDoc and debug behavior.
 
 ### 3. Build and run
 
