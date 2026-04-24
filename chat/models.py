@@ -3,6 +3,9 @@ from django.contrib.auth.models import User
 
 
 def normalize_room_users(user_a, user_b):
+    if user_a.pk is None or user_b.pk is None:
+        raise ValueError("Private room users must be saved before a room can be created.")
+
     if user_a.pk == user_b.pk:
         raise ValueError("A private room requires two different users.")
 
@@ -18,14 +21,18 @@ def get_or_create_private_room(user_a, user_b):
 
 
 class Room(models.Model):
-    user1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rooms_as_user1')
-    user2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rooms_as_user2')
+    user1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name="rooms_as_user1")
+    user2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name="rooms_as_user2")
 
     class Meta:
         constraints = [
             models.CheckConstraint(
-                check=~models.Q(user1=models.F("user2")),
+                condition=~models.Q(user1=models.F("user2")),
                 name="room_users_must_be_different",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(user1__lt=models.F("user2")),
+                name="room_users_must_be_ordered",
             ),
             models.UniqueConstraint(
                 fields=["user1", "user2"],
